@@ -33,29 +33,25 @@ public class OnStep implements Listener {
         String label = sign.getLine(0);
         if(!label.toLowerCase().equals("[launch]")) return;
 
-        double x;
-        double y;
-        double z;
+        Player player = event.getPlayer();
 
-        try {
-            x = Double.parseDouble(sign.getLine(1));
-            y = Double.parseDouble(sign.getLine(2));
-            z = Double.parseDouble(sign.getLine(3));
-        } catch (NumberFormatException | NullPointerException e) {
-            event.getPlayer().sendMessage("§cError: Please check the values! The values on lines 2-4 must be a Double values (X.X).");
+        Double x = getDoubleOrNull(sign.getLine(1));
+        Double y = getDoubleOrNull(sign.getLine(2));
+        Double z = getDoubleOrNull(sign.getLine(3));
+
+        if(x == null || y == null || z == null) {
+            player.sendMessage("§cError! Please check the number values on lines 2-4");
             return;
         }
 
-        Player player = event.getPlayer();
         Configuration config = LaunchPadsMain.instance.getConfig();
         boolean soundsEnabled = config.getBoolean("sound.enabled");
 
         String sound = config.getString("sound.sound");
-        Sound bukkitSound;
-        try {
-            bukkitSound = Sound.valueOf(sound);
-        } catch (IllegalArgumentException e) {
-            player.sendMessage("§cError! Invalid sound: " + sound);
+        Sound bukkitSound = getBukkitSoundOrNull(sound);
+
+        if(bukkitSound == null) {
+            player.sendMessage("§cError! No sound found for: " + sound);
             return;
         }
 
@@ -92,5 +88,21 @@ public class OnStep implements Listener {
 
     private boolean isSign(Material material) {
         return Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("signs"), Material.class).isTagged(material);
+    }
+
+    private Double getDoubleOrNull(String string) {
+        try {
+            return Double.parseDouble(string);
+        } catch (NumberFormatException | NullPointerException e) {
+            return null;
+        }
+    }
+
+    private Sound getBukkitSoundOrNull(String string) {
+        try {
+            return Sound.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
     }
 }
