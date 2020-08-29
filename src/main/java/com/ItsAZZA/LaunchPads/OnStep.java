@@ -70,20 +70,7 @@ public class OnStep implements Listener {
     }
 
     private boolean isPressureplate(Material material) {
-        switch (material) {
-            case LIGHT_WEIGHTED_PRESSURE_PLATE:
-            case HEAVY_WEIGHTED_PRESSURE_PLATE:
-            case ACACIA_PRESSURE_PLATE:
-            case BIRCH_PRESSURE_PLATE:
-            case DARK_OAK_PRESSURE_PLATE:
-            case JUNGLE_PRESSURE_PLATE:
-            case OAK_PRESSURE_PLATE:
-            case SPRUCE_PRESSURE_PLATE:
-            case STONE_PRESSURE_PLATE:
-                return true;
-            default:
-                return false;
-        }
+        return Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("pressure_plates"), Material.class).isTagged(material);
     }
 
     private boolean isSign(Material material) {
