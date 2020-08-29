@@ -85,7 +85,7 @@ public class LaunchPadsCommand implements CommandExecutor {
     private void sendUsage (Player player) {
         player.sendMessage("§ePossible subcommands:\n" +
                 "§f- /launchpads reload : Reload the config\n" +
-                "§f- /launchpads sound <sound> [volume=1.0] [pitch=1.0] : Change the sound\n" +
+                "§f- /launchpads sound <sound> [<volume=1.0> <pitch=1.0>] : Change the sound\n" +
                 "§f- /launchpads togglesound : Toggle the sound");
     }
 }
