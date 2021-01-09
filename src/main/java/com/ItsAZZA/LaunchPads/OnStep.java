@@ -16,7 +16,7 @@ import org.bukkit.util.Vector;
 
 import static org.bukkit.Tag.REGISTRY_BLOCKS;
 
-public class OnStep implements Listener {
+class OnStep implements Listener {
 
     @EventHandler
     public void onStep(PlayerInteractEvent event) {
@@ -31,7 +31,7 @@ public class OnStep implements Listener {
 
         Sign sign = (Sign) dataBlock.getState();
         String label = sign.getLine(0);
-        if(!label.toLowerCase().equals("[launch]")) return;
+        if(!label.equalsIgnoreCase("[launch]")) return;
 
         Player player = event.getPlayer();
 
@@ -73,7 +73,7 @@ public class OnStep implements Listener {
         return Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("pressure_plates"), Material.class).isTagged(material);
     }
 
-    private boolean isSign(Material material) {
+    public boolean isSign(Material material) {
         return Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("signs"), Material.class).isTagged(material);
     }
 
