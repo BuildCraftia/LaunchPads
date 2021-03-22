@@ -26,7 +26,10 @@ class OnStep implements Listener {
         if (block == null) return;
         if (!isPressureplate(block.getType())) return;
 
-        Block dataBlock = block.getRelative(0, -2, 0);
+        Configuration config = LaunchPadsMain.instance.getConfig();
+        int blockLocation = config.getInt("signYOffset", -2);
+
+        Block dataBlock = block.getRelative(0, blockLocation, 0);
         if(!isSign(dataBlock.getType())) return;
 
         Sign sign = (Sign) dataBlock.getState();
@@ -44,7 +47,6 @@ class OnStep implements Listener {
             return;
         }
 
-        Configuration config = LaunchPadsMain.instance.getConfig();
         boolean soundsEnabled = config.getBoolean("sound.enabled");
 
         String sound = config.getString("sound.sound");

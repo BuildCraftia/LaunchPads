@@ -3,3 +3,4 @@ sound:
   sound: ENTITY_FIREWORK_ROCKET_LAUNCH
   volume: 1.0
   pitch: 1.0
+signYOffset: -2
