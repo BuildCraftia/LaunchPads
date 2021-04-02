@@ -1,9 +1,6 @@
 package com.ItsAZZA.LaunchPads;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Material;
-import org.bukkit.NamespacedKey;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
 import org.bukkit.configuration.Configuration;
@@ -12,7 +9,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
+
+import java.util.logging.Level;
 
 import static org.bukkit.Tag.REGISTRY_BLOCKS;
 
@@ -26,7 +26,8 @@ class OnStep implements Listener {
         if (block == null) return;
         if (!isPressureplate(block.getType())) return;
 
-        Configuration config = LaunchPadsMain.instance.getConfig();
+        LaunchPadsMain plugin = LaunchPadsMain.instance;
+        Configuration config = plugin.getConfig();
         int blockLocation = config.getInt("signYOffset", -2);
 
         Block dataBlock = block.getRelative(0, blockLocation, 0);
@@ -53,7 +54,8 @@ class OnStep implements Listener {
         Sound bukkitSound = getBukkitSoundOrNull(sound);
 
         if(bukkitSound == null) {
-            player.sendMessage("§cError! No sound found for: " + sound);
+            Bukkit.getLogger().log(Level.WARNING, "Could not find sound for " + sound);
+            player.sendMessage("§cAn error occurred! Please check the console for more information!");
             return;
         }
 
@@ -65,7 +67,56 @@ class OnStep implements Listener {
         velocity.setY(y);
         velocity.setZ(z);
 
+        long delay = config.getLong("particle.delay");
+
+        if (config.getBoolean("particle.enabled")) {
+            String particleString = config.getString("particle.particle");
+            int amount = config.getInt("particle.amount");
+            Particle particle = getBukkitParticleOrNull(particleString);
+            if (particle == null) {
+                Bukkit.getLogger().log(Level.WARNING, "Could not find particle for " + particleString);
+                player.sendMessage("§cAn error occurred! Please check the console for more information!");
+                return;
+            }
+
+            if (config.getBoolean("particle.iterations.enabled")) {
+                new BukkitRunnable() {
+                    private int i = 0;
+                    private final int iterations = config.getInt("particle.iterations.amount");
+
+                    @Override
+                    public void run() {
+                        i++;
+                        Location location = player.getLocation();
+                        World world = location.getWorld();
+                        assert world != null;
+                        world.spawnParticle(particle, location, amount);
+
+                        if (i >= iterations) {
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(plugin, 0L, delay);
+            } else {
+                new BukkitRunnable() {
+                    @Override
+                    public void run() {
+                        Vector velocity = player.getVelocity();
+                        if (velocity.getY() > 0) {
+                            Location location = player.getLocation();
+                            World world = location.getWorld();
+                            assert world != null;
+                            world.spawnParticle(particle, location, amount);
+                        } else {
+                            cancel();
+                        }
+                    }
+                }.runTaskTimer(plugin, 0L, delay);
+            }
+        }
+
         player.setVelocity(velocity);
+
         if(soundsEnabled && sound != null) {
             player.playSound(player.getLocation(), bukkitSound, volume, pitch);
         }
@@ -90,6 +141,14 @@ class OnStep implements Listener {
     private Sound getBukkitSoundOrNull(String string) {
         try {
             return Sound.valueOf(string);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private Particle getBukkitParticleOrNull(String string) {
+        try {
+            return Particle.valueOf(string);
         } catch (IllegalArgumentException e) {
             return null;
         }
