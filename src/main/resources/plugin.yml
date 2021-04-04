@@ -1,7 +1,7 @@
 name: LaunchPads
-version: ${project.version}
+version: 1.1.1
 main: com.ItsAZZA.LaunchPads.LaunchPadsMain
-api-version: 1.16
+api-version: 1.13
 authors: [ItsAZZA]
 commands:
   launchpads:

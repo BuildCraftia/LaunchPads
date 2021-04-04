@@ -1,3 +1,15 @@
 /.idea/
 target/
+/.gradle/
+build/
 *.iml
+*.class
+*.log
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+hs_err_pid*

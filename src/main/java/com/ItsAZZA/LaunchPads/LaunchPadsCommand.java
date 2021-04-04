@@ -9,8 +9,8 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
 public class LaunchPadsCommand implements CommandExecutor {
-    LaunchPadsMain plugin = LaunchPadsMain.instance;
-    Configuration config = plugin.getConfig();
+    final static LaunchPadsMain plugin = LaunchPadsMain.instance;
+    final static Configuration config = plugin.getConfig();
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

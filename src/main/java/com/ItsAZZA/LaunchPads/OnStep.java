@@ -14,8 +14,6 @@ import org.bukkit.util.Vector;
 
 import java.util.logging.Level;
 
-import static org.bukkit.Tag.REGISTRY_BLOCKS;
-
 class OnStep implements Listener {
 
     @EventHandler
@@ -24,18 +22,18 @@ class OnStep implements Listener {
 
         Block block = event.getClickedBlock();
         if (block == null) return;
-        if (!isPressureplate(block.getType())) return;
+        if (!block.getType().name().contains("PRESSURE_PLATE")) return;
 
         LaunchPadsMain plugin = LaunchPadsMain.instance;
         Configuration config = plugin.getConfig();
         int blockLocation = config.getInt("signYOffset", -2);
 
         Block dataBlock = block.getRelative(0, blockLocation, 0);
-        if(!isSign(dataBlock.getType())) return;
+        if (!(dataBlock.getState() instanceof Sign)) return;
 
         Sign sign = (Sign) dataBlock.getState();
         String label = sign.getLine(0);
-        if(!label.equalsIgnoreCase("[launch]")) return;
+        if (!label.equalsIgnoreCase("[launch]")) return;
 
         Player player = event.getPlayer();
 
@@ -43,7 +41,7 @@ class OnStep implements Listener {
         Double y = getDoubleOrNull(sign.getLine(2));
         Double z = getDoubleOrNull(sign.getLine(3));
 
-        if(x == null || y == null || z == null) {
+        if (x == null || y == null || z == null) {
             player.sendMessage("§cError! Please check the number values on lines 2-4");
             return;
         }
@@ -53,7 +51,7 @@ class OnStep implements Listener {
         String sound = config.getString("sound.sound");
         Sound bukkitSound = getBukkitSoundOrNull(sound);
 
-        if(bukkitSound == null) {
+        if (bukkitSound == null) {
             Bukkit.getLogger().log(Level.WARNING, "Could not find sound for " + sound);
             player.sendMessage("§cAn error occurred! Please check the console for more information!");
             return;
@@ -69,15 +67,25 @@ class OnStep implements Listener {
 
         long delay = config.getLong("particle.delay");
 
+        player.setVelocity(velocity);
+
+        if (soundsEnabled && sound != null) {
+            player.playSound(player.getLocation(), bukkitSound, volume, pitch);
+        }
+
         if (config.getBoolean("particle.enabled")) {
             String particleString = config.getString("particle.particle");
             int amount = config.getInt("particle.amount");
             Particle particle = getBukkitParticleOrNull(particleString);
+
             if (particle == null) {
                 Bukkit.getLogger().log(Level.WARNING, "Could not find particle for " + particleString);
                 player.sendMessage("§cAn error occurred! Please check the console for more information!");
                 return;
             }
+
+            // If particle requires data, we're just returning for now
+            if (particle.getDataType() != Void.class) return;
 
             if (config.getBoolean("particle.iterations.enabled")) {
                 new BukkitRunnable() {
@@ -114,20 +122,6 @@ class OnStep implements Listener {
                 }.runTaskTimer(plugin, 0L, delay);
             }
         }
-
-        player.setVelocity(velocity);
-
-        if(soundsEnabled && sound != null) {
-            player.playSound(player.getLocation(), bukkitSound, volume, pitch);
-        }
-    }
-
-    private boolean isPressureplate(Material material) {
-        return Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("pressure_plates"), Material.class).isTagged(material);
-    }
-
-    public boolean isSign(Material material) {
-        return Bukkit.getTag(REGISTRY_BLOCKS, NamespacedKey.minecraft("signs"), Material.class).isTagged(material);
     }
 
     private Double getDoubleOrNull(String string) {
