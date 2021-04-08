@@ -102,11 +102,13 @@ public class LaunchPadsCommand implements CommandExecutor {
 
         double volume = 1.0;
         double pitch = 1.0;
+
         if(args.length == 4) {
                 volume = Double.parseDouble(args[2]);
                 pitch = Double.parseDouble(args[3]);
         }
 
+        player.sendMessage("§eSet sound to " + sound + " at volume " + volume + " and pitch " + pitch);
         plugin.setConfig("sound.sound", sound);
         plugin.setConfig("sound.volume", volume);
         plugin.setConfig("sound.pitch", pitch);
