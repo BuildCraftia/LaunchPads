@@ -12,8 +12,6 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-import java.util.logging.Level;
-
 class OnStep implements Listener {
 
     @EventHandler
@@ -22,7 +20,7 @@ class OnStep implements Listener {
 
         Block block = event.getClickedBlock();
         if (block == null) return;
-        if (!block.getType().name().contains("PRESSURE_PLATE")) return;
+        if (!block.getType().name().contains("_PLATE")) return;
 
         LaunchPadsMain plugin = LaunchPadsMain.instance;
         Configuration config = plugin.getConfig();
@@ -52,8 +50,7 @@ class OnStep implements Listener {
         Sound bukkitSound = getBukkitSoundOrNull(sound);
 
         if (bukkitSound == null) {
-            Bukkit.getLogger().log(Level.WARNING, "Could not find sound for " + sound);
-            player.sendMessage("§cAn error occurred! Please check the console for more information!");
+            player.sendMessage("§cError: Could not find sound for " + sound);
             return;
         }
 
@@ -65,26 +62,37 @@ class OnStep implements Listener {
         velocity.setY(y);
         velocity.setZ(z);
 
-        long delay = config.getLong("particle.delay");
+        // Fix a problem pre-1.13 not launching players upwards...
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                player.setVelocity(velocity);
+            }
+        }.runTaskLater(plugin, 1L);
 
-        player.setVelocity(velocity);
+        long delay = config.getLong("particle.delay");
 
         if (soundsEnabled && sound != null) {
             player.playSound(player.getLocation(), bukkitSound, volume, pitch);
         }
 
         if (config.getBoolean("particle.enabled")) {
+
+            if (Bukkit.getVersion().contains("1.8")) return; // No particles for 1.8 :(
+
             String particleString = config.getString("particle.particle");
             int amount = config.getInt("particle.amount");
-            Particle particle = getBukkitParticleOrNull(particleString);
 
-            if (particle == null) {
-                Bukkit.getLogger().log(Level.WARNING, "Could not find particle for " + particleString);
-                player.sendMessage("§cAn error occurred! Please check the console for more information!");
+            Particle particle;
+
+            try {
+                particle = Particle.valueOf(particleString);
+            } catch (IllegalArgumentException e) {
+                player.sendMessage("§cError: Could not find particle for " + particleString);
                 return;
             }
 
-            // If particle requires data, we're just returning for now
+            // If particle requires data, we're just returning for now (future feature?)
             if (particle.getDataType() != Void.class) return;
 
             if (config.getBoolean("particle.iterations.enabled")) {
@@ -104,7 +112,7 @@ class OnStep implements Listener {
                             cancel();
                         }
                     }
-                }.runTaskTimer(plugin, 0L, delay);
+                }.runTaskTimer(plugin, 1L, delay);
             } else {
                 new BukkitRunnable() {
                     @Override
@@ -119,7 +127,7 @@ class OnStep implements Listener {
                             cancel();
                         }
                     }
-                }.runTaskTimer(plugin, 0L, delay);
+                }.runTaskTimer(plugin, 1L, delay);
             }
         }
     }
@@ -135,14 +143,6 @@ class OnStep implements Listener {
     private Sound getBukkitSoundOrNull(String string) {
         try {
             return Sound.valueOf(string);
-        } catch (IllegalArgumentException e) {
-            return null;
-        }
-    }
-
-    private Particle getBukkitParticleOrNull(String string) {
-        try {
-            return Particle.valueOf(string);
         } catch (IllegalArgumentException e) {
             return null;
         }

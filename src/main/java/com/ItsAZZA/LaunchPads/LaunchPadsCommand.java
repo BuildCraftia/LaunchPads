@@ -9,9 +9,6 @@ import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
 public class LaunchPadsCommand implements CommandExecutor {
-    final static LaunchPadsMain plugin = LaunchPadsMain.instance;
-    final static Configuration config = plugin.getConfig();
-
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(!(sender instanceof Player)) return false;
@@ -89,6 +86,8 @@ public class LaunchPadsCommand implements CommandExecutor {
     }
 
     private void setSound(Player player, String[] args) {
+        LaunchPadsMain plugin = LaunchPadsMain.instance;
+
         if(args.length < 2) {
             player.sendMessage("§cUsage: /launchpads sound <sound> [volume=1.0] [pitch=1.0]");
             return;
@@ -115,8 +114,11 @@ public class LaunchPadsCommand implements CommandExecutor {
     }
 
     private void toggle(Player player, String type) {
+        LaunchPadsMain plugin = LaunchPadsMain.instance;
+        Configuration config = plugin.getConfig();
         String path = type + ".enabled";
         boolean value = config.getBoolean(path);
+
         plugin.setConfig(path, !value);
         plugin.saveConfig();
 
@@ -128,12 +130,15 @@ public class LaunchPadsCommand implements CommandExecutor {
     }
 
     private void setParticleValue(Player player, String type, long amount) {
+        LaunchPadsMain plugin = LaunchPadsMain.instance;
         plugin.setConfig("particle." + type, amount);
         plugin.saveConfig();
         player.sendMessage("§eSet " + type + " value to " + amount);
     }
 
     private void setParticle(Player player, String particle) {
+        LaunchPadsMain plugin = LaunchPadsMain.instance;
+
         try {
             Particle.valueOf(particle);
         } catch (IllegalArgumentException e) {
