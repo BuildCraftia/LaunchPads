@@ -77,7 +77,6 @@ class OnStep implements Listener {
         }
 
         if (config.getBoolean("particle.enabled")) {
-
             if (Bukkit.getVersion().contains("1.8")) return; // No particles for 1.8 :(
 
             String particleString = config.getString("particle.particle");

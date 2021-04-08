@@ -4,7 +4,7 @@ plugins {
 }
 
 group = 'LaunchPads'
-version = '1.1.1'
+version = '1.2'
 description = 'LaunchPads'
 java.sourceCompatibility = JavaVersion.VERSION_1_8
 
@@ -12,13 +12,11 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven { url('https://hub.spigotmc.org/nexus/content/repositories/snapshots/') }
-    maven { url('https://oss.sonatype.org/content/groups/public/') }
     maven { url('https://repo.maven.apache.org/maven2/') }
 }
 
 dependencies {
     implementation 'org.bstats:bstats-bukkit:2.2.1'
-    shadow 'com.github.cryptomorin:XSeries:7.9.1.1'
     compileOnly 'org.spigotmc:spigot-api:1.16.5-R0.1-SNAPSHOT'
 }
 
