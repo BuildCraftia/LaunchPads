@@ -1,25 +1,27 @@
 package com.ItsAZZA.LaunchPads;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.configuration.Configuration;
 import org.bukkit.entity.Player;
 
 public class LaunchPadsCommand implements CommandExecutor {
+    LaunchPadsMain plugin = LaunchPadsMain.instance;
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        if(!(sender instanceof Player)) return false;
+        if (!(sender instanceof Player)) return false;
         Player player = (Player) sender;
 
-        if(!player.hasPermission("launchpads.command")) {
+        if (!player.hasPermission("launchpads.command")) {
             player.sendMessage("§cNo permission: launchpads.command");
             return false;
         }
 
-        if(args.length < 1) {
+        if (args.length < 1) {
             sendUsage(player);
             return false;
         }
@@ -50,10 +52,15 @@ public class LaunchPadsCommand implements CommandExecutor {
                     case "iterations": {
                         toggle(player, "iterations");
                     }
-                    default: sender.sendMessage("§cUsage: /launchpads toggle <sound|particle|iterations>");
+                    default:
+                        sender.sendMessage("§cUsage: /launchpads toggle <sound|particle|iterations>");
                 }
                 return true;
             case "particle":
+                if (Bukkit.getServer().getVersion().contains("1.8")) {
+                    player.sendMessage("§cParticles are not supported in 1.8");
+                    return true;
+                }
                 if (args.length < 3) {
                     sender.sendMessage("§cUsage: /launchpads particle <iterations|delay|amount> <amount>");
                     return true;
@@ -86,16 +93,14 @@ public class LaunchPadsCommand implements CommandExecutor {
     }
 
     private void setSound(Player player, String[] args) {
-        LaunchPadsMain plugin = LaunchPadsMain.instance;
-
-        if(args.length < 2) {
+        if (args.length < 2) {
             player.sendMessage("§cUsage: /launchpads sound <sound> [volume=1.0] [pitch=1.0]");
             return;
         }
 
         String sound = args[1].toUpperCase();
         try {
-             Sound.valueOf(sound);
+            Sound.valueOf(sound);
         } catch (IllegalArgumentException e) {
             return;
         }
@@ -103,9 +108,9 @@ public class LaunchPadsCommand implements CommandExecutor {
         double volume = 1.0;
         double pitch = 1.0;
 
-        if(args.length == 4) {
-                volume = Double.parseDouble(args[2]);
-                pitch = Double.parseDouble(args[3]);
+        if (args.length == 4) {
+            volume = Double.parseDouble(args[2]);
+            pitch = Double.parseDouble(args[3]);
         }
 
         player.sendMessage("§eSet sound to " + sound + " at volume " + volume + " and pitch " + pitch);
@@ -116,10 +121,8 @@ public class LaunchPadsCommand implements CommandExecutor {
     }
 
     private void toggle(Player player, String type) {
-        LaunchPadsMain plugin = LaunchPadsMain.instance;
-        Configuration config = plugin.getConfig();
         String path = type + ".enabled";
-        boolean value = config.getBoolean(path);
+        boolean value = plugin.getConfig().getBoolean(path);
 
         plugin.setConfig(path, !value);
         plugin.saveConfig();
@@ -132,15 +135,12 @@ public class LaunchPadsCommand implements CommandExecutor {
     }
 
     private void setParticleValue(Player player, String type, long amount) {
-        LaunchPadsMain plugin = LaunchPadsMain.instance;
         plugin.setConfig("particle." + type, amount);
         plugin.saveConfig();
         player.sendMessage("§eSet " + type + " value to " + amount);
     }
 
     private void setParticle(Player player, String particle) {
-        LaunchPadsMain plugin = LaunchPadsMain.instance;
-
         try {
             Particle.valueOf(particle);
         } catch (IllegalArgumentException e) {
@@ -153,7 +153,7 @@ public class LaunchPadsCommand implements CommandExecutor {
         player.sendMessage("§eSet particle to " + particle);
     }
 
-    private void sendUsage (Player player) {
+    private void sendUsage(Player player) {
         player.sendMessage("§ePossible subcommands:\n" +
                 "§f- /launchpads reload : Reload the config\n" +
                 "§f- /launchpads sound <sound> [<volume=1.0> <pitch=1.0>] : Change the sound\n" +
