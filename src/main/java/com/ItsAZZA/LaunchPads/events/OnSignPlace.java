@@ -1,4 +1,4 @@
-package com.ItsAZZA.LaunchPads;
+package com.ItsAZZA.LaunchPads.events;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;

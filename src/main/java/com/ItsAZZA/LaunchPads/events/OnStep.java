@@ -1,5 +1,7 @@
-package com.ItsAZZA.LaunchPads;
+package com.ItsAZZA.LaunchPads.events;
 
+import com.ItsAZZA.LaunchPads.LaunchCache;
+import com.ItsAZZA.LaunchPads.LaunchPadsMain;
 import org.bukkit.*;
 import org.bukkit.block.Block;
 import org.bukkit.block.Sign;
@@ -12,7 +14,9 @@ import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
-class OnStep implements Listener {
+import java.util.concurrent.TimeUnit;
+
+public class OnStep implements Listener {
 
     @EventHandler
     public void onStep(PlayerInteractEvent event) {
@@ -69,6 +73,11 @@ class OnStep implements Listener {
                 player.setVelocity(velocity);
             }
         }.runTaskLater(plugin, 1L);
+
+        // Puts the player into the launch cache
+        if (config.getBoolean("falldamage.prevent")) {
+            LaunchCache.put(player.getUniqueId(), (int) Math.ceil(config.getDouble("falldamage.multiplier") * velocity.getY() * 1000));
+        }
 
         long delay = config.getLong("particle.delay");
 

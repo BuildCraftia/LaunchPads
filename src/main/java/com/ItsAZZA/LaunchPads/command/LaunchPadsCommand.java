@@ -1,5 +1,6 @@
-package com.ItsAZZA.LaunchPads;
+package com.ItsAZZA.LaunchPads.command;
 
+import com.ItsAZZA.LaunchPads.LaunchPadsMain;
 import org.bukkit.Bukkit;
 import org.bukkit.Particle;
 import org.bukkit.Sound;
