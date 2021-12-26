@@ -75,7 +75,7 @@ public class OnStep implements Listener {
         }.runTaskLater(plugin, 1L);
 
         // Puts the player into the launch cache
-        if (config.getBoolean("falldamage.prevent")) {
+        if (config.getBoolean("falldamage.prevent") && !player.getGameMode().equals(GameMode.CREATIVE)) {
             LaunchCache.put(player.getUniqueId(), (int) Math.ceil(config.getDouble("falldamage.multiplier") * velocity.getY() * 1000));
         }
 
